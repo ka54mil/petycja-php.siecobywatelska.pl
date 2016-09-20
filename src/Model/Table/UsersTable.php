@@ -9,6 +9,8 @@ use Cake\Validation\Validator;
 /**
  * Users Model
  *
+ * @property \Cake\ORM\Association\HasMany $Posts
+ *
  * @method \App\Model\Entity\User get($primaryKey, $options = [])
  * @method \App\Model\Entity\User newEntity($data = null, array $options = [])
  * @method \App\Model\Entity\User[] newEntities(array $data, array $options = [])
@@ -33,10 +35,14 @@ class UsersTable extends Table
         parent::initialize($config);
 
         $this->table('users');
-        $this->displayField('id');
+        $this->displayField('display_name');
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
+
+        $this->hasMany('Posts', [
+            'foreignKey' => 'user_id'
+        ]);
     }
 
     /**
@@ -53,7 +59,12 @@ class UsersTable extends Table
 
         $validator
             ->requirePresence('login', 'create')
-            ->notEmpty('login');
+            ->notEmpty('login')
+            ->add('login', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
+
+        $validator
+            ->requirePresence('display_name', 'create')
+            ->notEmpty('display_name');
 
         $validator
             ->requirePresence('password', 'create')
@@ -62,7 +73,8 @@ class UsersTable extends Table
         $validator
             ->email('email')
             ->requirePresence('email', 'create')
-            ->notEmpty('email');
+            ->notEmpty('email')
+            ->add('email', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         return $validator;
     }
@@ -78,6 +90,7 @@ class UsersTable extends Table
     {
         $rules->add($rules->isUnique(['login']));
         $rules->add($rules->isUnique(['email']));
+
         return $rules;
     }
 }

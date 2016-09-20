@@ -24,7 +24,8 @@ class PostsTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'app.posts'
+        'app.posts',
+        'app.users'
     ];
 
     /**
@@ -67,6 +68,26 @@ class PostsTableTest extends TestCase
      * @return void
      */
     public function testValidationDefault()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
+     * Test buildRules method
+     *
+     * @return void
+     */
+    public function testBuildRules()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
+     * Test findVisible method
+     *
+     * @return void
+     */
+    public function testFindVisible()
     {
         $this->markTestIncomplete('Not implemented yet.');
     }

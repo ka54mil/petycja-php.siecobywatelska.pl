@@ -12,6 +12,9 @@ use Cake\ORM\Entity;
  * @property string $password
  * @property string $email
  * @property \Cake\I18n\Time $created
+ *
+ * @property \App\Model\Entity\Post[] $posts
+ *
  */
 class User extends Entity
 {
@@ -35,13 +38,20 @@ class User extends Entity
      *
      * @var array
      */
-   protected $_hidden = [
+    protected $_hidden = [
         'password'
     ];
 
-    public function _setPassword($value)
+    /**
+     * Protect a passswod
+     *
+     * @param string $password passwod that will be protected
+     * @return string|void
+     */
+    protected function _setPassword($password)
     {
-      $hasher = new DefaultPasswordHasher();
-      return $hasher->hash($value);
+        if (strlen($password) > 0) {
+            return (new DefaultPasswordHasher)->hash($password);
+        }
     }
 }

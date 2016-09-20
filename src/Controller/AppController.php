@@ -28,6 +28,27 @@ use Cake\Event\Event;
 class AppController extends Controller
 {
 
+    public $helpers = [
+        'Html' => [
+            'className' => 'Bootstrap.BootstrapHtml',
+            'useFontAwesome' => true // Add this line to set font awesome as default
+        ],
+        'Navbar' => [
+            'className' => 'Bootstrap.BootstrapNavbar'
+        ],
+        'Form' => [
+            'className' => 'Bootstrap.BootstrapForm'
+        ],
+        'Paginator' => [
+            'className' => 'Bootstrap.BootstrapPaginator'
+        ],
+        'Modal' => [
+            'className' => 'Bootstrap.BootstrapModal'
+        ],
+        'Flash' => [
+            'className' => 'Bootstrap.BootstrapFlash'
+        ]
+    ];
     /**
      * Initialization hook method.
      *
@@ -53,14 +74,12 @@ class AppController extends Controller
             ]
           ],
             'loginAction' => [
-              'controller' => 'Users',
+              'controller' => 'Auth',
               'action' => 'login'
             ],
-            'unauthorizedRedirect'=>$this->referer()
+            'unauthorizedRedirect' => $this->referer()
 
         ]);
-
-        $this->Auth->allow(['display']);
     }
 
     /**

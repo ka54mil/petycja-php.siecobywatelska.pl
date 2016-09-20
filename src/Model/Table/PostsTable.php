@@ -9,6 +9,8 @@ use Cake\Validation\Validator;
 /**
  * Posts Model
  *
+ * @property \Cake\ORM\Association\BelongsTo $Users
+ *
  * @method \App\Model\Entity\Post get($primaryKey, $options = [])
  * @method \App\Model\Entity\Post newEntity($data = null, array $options = [])
  * @method \App\Model\Entity\Post[] newEntities(array $data, array $options = [])
@@ -37,6 +39,13 @@ class PostsTable extends Table
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Muffin/Slug.Slug', [
+            'displayField' => 'title'
+         ]);
+
+        $this->belongsTo('Users', [
+            'foreignKey' => 'user_id'
+        ]);
     }
 
     /**
@@ -59,6 +68,47 @@ class PostsTable extends Table
             ->requirePresence('content', 'create')
             ->notEmpty('content');
 
+        $validator
+            ->requirePresence('state', 'create')
+            ->notEmpty('state')
+            ->inList('state', ['published', 'pinned', 'draft']);
+
+        $validator
+            ->requirePresence('type', 'create')
+            ->notEmpty('type');
+
+        $validator
+            ->requirePresence('link_target', 'create')
+            ->allowEmpty('link_target', function ($context) {
+                return $context && $context['data'] && $context['data']['type'] != 'link';
+            });
+
         return $validator;
+    }
+
+    /**
+     * Returns a rules checker object that will be used for validating
+     * application integrity.
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
+    public function buildRules(RulesChecker $rules)
+    {
+        $rules->add($rules->existsIn(['user_id'], 'Users'));
+
+        return $rules;
+    }
+
+    /**
+     * Finder that allow display only visible for normal posts (ex. will hide draft posts)
+     *
+     * @param \Cake\ORM\Query $query Query that will be filtered.
+     * @param array $options Options.
+     * @return \Cake\ORM\Query
+     */
+    public function findVisible(Query $query, array $options)
+    {
+        return $query->where(['Posts.state IN' => ['pinned', 'published']]);
     }
 }

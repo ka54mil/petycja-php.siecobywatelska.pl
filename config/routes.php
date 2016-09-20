@@ -42,18 +42,33 @@ use Cake\Routing\Router;
  */
 Router::defaultRouteClass('DashedRoute');
 
-Router::scope('/', function (RouteBuilder $routes) {
-    /**
-     * Here, we are connecting '/' (base path) to a controller called 'Pages',
-     * its action called 'display', and we pass a param to select the view file
-     * to use (in this case, src/Template/Pages/home.ctp)...
-     */
-    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
 
-    /**
-     * ...and connect the rest of 'Pages' controller's URLs.
-     */
-    $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
+Router::scope('/auth', function (RouteBuilder $routes) {
+    $routes->connect('/', ['controller' => 'Auth', 'action' => 'login'], ['_name' => 'auth.login']);
+    $routes->connect('/logout', ['controller' => 'Auth', 'action' => 'logout', ], [ '_name' => 'auth.logout']);
+});
+
+Router::scope('/petition', function (RouteBuilder $routes) {
+    $routes->connect('/', ['controller' => 'Petition', 'action' => 'index'], ['_name' => 'petition.index']);
+    $routes->connect('/form', ['controller' => 'Petition', 'action' => 'add'], ['_name' => 'petition.add']);
+    $routes->connect('/thank-you', ['controller' => 'Petition', 'action' => 'thank'], ['_name' => 'petition.thank']);
+    $routes->connect('/map-points', ['controller' => 'Petition', 'action' => 'mapPoints'], ['_name' => 'petition.map_point', '_ext' => ['json']]);
+});
+
+Router::scope('/admin', function (RouteBuilder $routes) {
+    $routes->connect('/', ['controller' => 'posts', 'action' => 'index']);
+    $routes->connect('/posts', ['controller' => 'posts', 'action' => 'index']);
+    $routes->connect('/signatures', ['controller' => 'signatures', 'action' => 'index']);
+    $routes->connect('/signatures/:action/*', ['controller' => 'signatures']);
+    $routes->connect('/users', ['controller' => 'users', 'action' => 'index']);
+    $routes->connect('/users/:action/*', ['controller' => 'users']);
+    $routes->connect('/posts/:action/*', ['controller' => 'posts']);
+});
+
+Router::scope('/', function (RouteBuilder $routes) {
+    $routes->connect('/', ['controller' => 'Blog', 'action' => 'index']);
+    $routes->connect('/blog/:slug/', ['controller' => 'Blog', 'action' => 'view'], ['pass' => ['slug'], 'slug' => '[a-z\-]+']);
+    $routes->connect('/feed', ['controller' => 'Blog', 'action' => 'rss'], ['_name' => 'feed', '_ext' => ['rss']]);
 
     /**
      * Connect catchall routes for all controllers.

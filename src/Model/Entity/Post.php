@@ -11,6 +11,12 @@ use Cake\ORM\Entity;
  * @property string $content
  * @property \Cake\I18n\Time $created
  * @property \Cake\I18n\Time $modified
+ * @property int $user_id
+ * @property string $state
+ * @property string $type
+ * @property string $link_target
+ *
+ * @property \App\Model\Entity\User $user
  */
 class Post extends Entity
 {
@@ -28,4 +34,34 @@ class Post extends Entity
         '*' => true,
         'id' => false
     ];
+
+    /**
+     * Allow check that the post was modified ever.
+     *
+     * @return bool
+     */
+    public function isHasBennModifited()
+    {
+        // Lte = Less or equal
+        return $this->created->modify('+15 minutes')->lte($this->modified);
+    }
+
+    /**
+     * Transform a state to translated form
+     *
+     * @return string
+     */
+    public function stateToString()
+    {
+        switch ($this->state) {
+            case 'published':
+                return __('Published');
+            case 'draft':
+                return __('Draft');
+            case 'pinned':
+                return __('Pinned');
+            default:
+                return 'Unknown state: ' . $this->state;
+        }
+    }
 }

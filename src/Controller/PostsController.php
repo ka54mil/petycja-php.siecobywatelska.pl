@@ -14,10 +14,17 @@ class PostsController extends AppController
     /**
      * Index method
      *
-     * @return \Cake\Network\Response|null
+     * @return void
      */
     public function index()
     {
+        $this->paginate = [
+            'contain' => ['Users'],
+            'order' => [
+                'Posts.created' => 'desc'
+            ]
+        ];
+
         $posts = $this->paginate($this->Posts);
 
         $this->set(compact('posts'));
@@ -28,13 +35,13 @@ class PostsController extends AppController
      * View method
      *
      * @param string|null $id Post id.
-     * @return \Cake\Network\Response|null
+     * @return void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
         $post = $this->Posts->get($id, [
-            'contain' => []
+            'contain' => ['Users']
         ]);
 
         $this->set('post', $post);
@@ -51,14 +58,18 @@ class PostsController extends AppController
         $post = $this->Posts->newEntity();
         if ($this->request->is('post')) {
             $post = $this->Posts->patchEntity($post, $this->request->data);
+            $post->user_id = $this->Auth->user('id');
             if ($this->Posts->save($post)) {
                 $this->Flash->success(__('The post has been saved.'));
+
                 return $this->redirect(['action' => 'index']);
             } else {
                 $this->Flash->error(__('The post could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('post'));
+        $users = $this->Posts->Users->find('list', ['limit' => 200]);
+        $this->set(compact('post', 'users'));
+
         $this->set('_serialize', ['post']);
     }
 
@@ -78,12 +89,14 @@ class PostsController extends AppController
             $post = $this->Posts->patchEntity($post, $this->request->data);
             if ($this->Posts->save($post)) {
                 $this->Flash->success(__('The post has been saved.'));
+
                 return $this->redirect(['action' => 'index']);
             } else {
                 $this->Flash->error(__('The post could not be saved. Please, try again.'));
             }
         }
-        $this->set(compact('post'));
+        $users = $this->Posts->Users->find('list', ['limit' => 200]);
+        $this->set(compact('post', 'users'));
         $this->set('_serialize', ['post']);
     }
 
@@ -103,12 +116,7 @@ class PostsController extends AppController
         } else {
             $this->Flash->error(__('The post could not be deleted. Please, try again.'));
         }
-        return $this->redirect(['action' => 'index']);
-    }
 
-    public function initialize()
-    {
-      parent::initialize();
-      $this->Auth->allow(['view', 'index']);
+        return $this->redirect(['action' => 'index']);
     }
 }
